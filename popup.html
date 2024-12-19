@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Tab Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Tab Manager</h1>
+    <input type="text" id="search" placeholder="Search tabs..." />
+  </header>
+
+  <main>
+    <h2>Grouped Tabs</h2>
+    <ul id="tab-list"></ul>
+
+    <h2>Saved Workspaces</h2>
+    <button id="save-workspace">Save Current Workspace</button>
+    <ul id="workspace-list"></ul>
+  </main>
+
+  <footer>
+    <button id="save-tabs">Save Tabs as Bookmark</button>
+  </footer>
+
+  <!-- Modální okno pro zadání názvu pracovního sezení -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h3>Enter Workspace Name</h3>
+      <input
+        type="text"
+        id="workspace-name"
+        placeholder="Workspace Name"
+        class="input-field"
+      />
+      <div class="modal-buttons">
+        <button id="modal-save" class="btn btn-primary">Save</button>
+        <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="popup.js"></script>
+</body>
+</html>

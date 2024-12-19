@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Tab Manager</title>
+  <title>Tab Manager Pro</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>Tab Manager</h1>
+    <h1>Tab Manager Pro</h1>
     <input type="text" id="search" placeholder="Search tabs..." />
   </header>
 
@@ -20,19 +20,16 @@
   </main>
 
   <footer>
-    <button id="save-tabs">Save Tabs as Bookmark</button>
+    <button id="tab-stats" class="btn btn-primary">Tab Statistics</button>
+    <button id="export-tabs" class="btn btn-secondary">Export Tabs</button>
   </footer>
+  
 
   <!-- Modální okno pro zadání názvu pracovního sezení -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <h3>Enter Workspace Name</h3>
-      <input
-        type="text"
-        id="workspace-name"
-        placeholder="Workspace Name"
-        class="input-field"
-      />
+      <input type="text" id="workspace-name" placeholder="Workspace Name" class="input-field" />
       <div class="modal-buttons">
         <button id="modal-save" class="btn btn-primary">Save</button>
         <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
@@ -40,6 +37,29 @@
     </div>
   </div>
 
+  <!-- Modální okno pro úpravy Workspace -->
+  <div id="workspace-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="workspace-title">Edit Workspace</h3>
+      <ul id="workspace-details"></ul>
+      <input type="text" id="new-tab-url" placeholder="Enter URL to add" class="input-field" />
+      <div class="modal-buttons">
+        <button id="add-tab-btn" class="btn btn-primary">Add Tab</button>
+        <button id="close-workspace-modal" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="stats-modal" class="modal">
+    <div class="modal-content">
+      <h3>Tab Statistics</h3>
+      <pre id="stats-content"></pre>
+      <div class="modal-buttons">
+        <button id="close-stats-modal" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+  
 
   <script src="popup.js"></script>
 </body>

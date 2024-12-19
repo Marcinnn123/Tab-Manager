@@ -38,6 +38,13 @@ main {
   overflow-y: auto;
 }
 
+h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: 500;
+}
+
 .domain-section {
   background: #fff;
   border-radius: 8px;
@@ -71,6 +78,16 @@ main {
   transform: translateX(5px);
 }
 
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
 .close-btn {
   background: none;
   border: none;
@@ -101,7 +118,7 @@ button {
 }
 
 button:hover {
-  background-color: #a32f20;
+  background-color: #059669;
   transform: scale(1.05);
 }
 
@@ -152,7 +169,6 @@ footer {
   box-sizing: border-box;
 }
 
-/* Tlačítka */
 .modal-buttons {
   display: flex;
   justify-content: space-between;
@@ -185,5 +201,99 @@ footer {
 
 .btn-secondary:hover {
   background-color: #d1d5db;
+  transform: scale(1.05);
+}
+
+/* Přidání stylu pro posuvný seznam záložek */
+#workspace-details {
+  max-height: 300px; /* Maximální výška seznamu */
+  overflow-y: auto; /* Povolení vertikálního scrollování */
+  padding: 10px;
+  background-color: #f9fafb;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+#workspace-details li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 5px;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#workspace-details li:hover {
+  background-color: #eef2ff;
+}
+
+#workspace-details .close-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#workspace-details .close-btn:hover {
+  color: #dc2626;
+}
+
+/* Modální okno statistik */
+#stats-modal .modal-content {
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+#stats-content {
+  font-family: monospace;
+  background: #f4f4f4;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 10px 0;
+}
+
+footer {
+  text-align: center;
+  padding: 5px;
+  background-color: #f4f6f8;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between; /* Zarovnání tlačítek vlevo a vpravo */
+  align-items: center;
+}
+
+footer .btn {
+  margin: 0; /* Odebrání defaultních marginů */
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 5px; /* Zaoblené rohy */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Jemný stín */
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+footer .btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+footer .btn-primary:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}
+
+footer .btn-secondary {
+  background-color: #10b981;
+  color: white;
+}
+
+footer .btn-secondary:hover {
+  background-color: #059669;
   transform: scale(1.05);
 }

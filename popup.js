@@ -20,7 +20,6 @@ const exportTabsBtn = document.getElementById("export-tabs");
 let tabs = [];
 let currentWorkspaceIndex = null;
 
-// Načítání otevřených karet
 function loadTabs() {
   browser.tabs.query({}).then((result) => {
     tabs = result;
@@ -28,7 +27,6 @@ function loadTabs() {
   }).catch((err) => console.error("Error loading tabs:", err));
 }
 
-// Seskupení karet podle domény
 function groupTabsByDomain(tabs) {
   const grouped = {};
   tabs.forEach((tab) => {
@@ -44,7 +42,6 @@ function groupTabsByDomain(tabs) {
   return grouped;
 }
 
-// Zobrazení seskupených karet
 function renderGroupedTabs(tabs) {
   const groupedTabs = groupTabsByDomain(tabs);
   tabList.innerHTML = "";
@@ -86,18 +83,15 @@ function renderGroupedTabs(tabs) {
   }
 }
 
-// Uložení nového pracovního sezení
 saveWorkspaceBtn.addEventListener("click", () => {
   workspaceNameInput.value = "";
   modal.style.display = "flex";
 });
 
-// Zavření modálního okna pro vytvoření pracovního sezení
 modalCancel.addEventListener("click", () => {
   modal.style.display = "none";
 });
 
-// Uložení pracovního sezení
 modalSave.addEventListener("click", () => {
   const workspaceName = workspaceNameInput.value.trim();
   if (!workspaceName) {
@@ -121,7 +115,6 @@ modalSave.addEventListener("click", () => {
   });
 });
 
-// Zobrazení uložených pracovních sezení
 function renderWorkspaces() {
   workspaceList.innerHTML = "";
   browser.storage.local.get({ workspaces: [] }).then((data) => {
@@ -130,7 +123,6 @@ function renderWorkspaces() {
       li.className = "tab-item";
       li.textContent = workspace.name;
 
-      // Tlačítko Restore
       const restoreBtn = document.createElement("button");
       restoreBtn.textContent = "Restore";
       restoreBtn.className = "restore-btn";
@@ -138,12 +130,10 @@ function renderWorkspaces() {
         workspace.tabs.forEach((tab) => browser.tabs.create({ url: tab.url }));
       };
 
-      // Tlačítko Edit
       const editBtn = document.createElement("button");
       editBtn.textContent = "Edit";
       editBtn.onclick = () => openWorkspaceModal(workspace, index);
 
-      // Tlačítko Delete
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
       deleteBtn.className = "close-btn";
@@ -162,7 +152,6 @@ function renderWorkspaces() {
   });
 }
 
-// Zobrazení modálního okna pro úpravu pracovního sezení
 function openWorkspaceModal(workspace, index) {
   currentWorkspaceIndex = index;
   workspaceTitle.textContent = `Edit Workspace: ${workspace.name}`;
@@ -187,12 +176,10 @@ function openWorkspaceModal(workspace, index) {
   workspaceModal.style.display = "flex";
 }
 
-// Zavření modálního okna
 closeWorkspaceModal.addEventListener("click", () => {
   workspaceModal.style.display = "none";
 });
 
-// Přidání nové záložky
 addTabBtn.addEventListener("click", () => {
   const url = newTabUrlInput.value.trim();
   if (!url) {
@@ -214,7 +201,7 @@ addTabBtn.addEventListener("click", () => {
   });
 });
 
-// Zobrazení detailů
+
 function renderWorkspaceDetails(workspace) {
   workspaceDetails.innerHTML = "";
 
@@ -238,11 +225,9 @@ function renderWorkspaceDetails(workspace) {
 tabStatsBtn.addEventListener("click", () => {
   let statsMessage = "";
 
-  // Načíst aktuální záložky
   browser.tabs.query({}).then((tabs) => {
     statsMessage += `Total Open Tabs: ${tabs.length}\n`;
 
-    // Seskupit záložky podle domény
     const domainCount = tabs.reduce((acc, tab) => {
       const domain = new URL(tab.url).hostname;
       acc[domain] = (acc[domain] || 0) + 1;
@@ -254,18 +239,15 @@ tabStatsBtn.addEventListener("click", () => {
       statsMessage += `- ${domain}: ${count} tabs\n`;
     }
 
-    // Načíst uložené pracovní sezení
     browser.storage.local.get({ workspaces: [] }).then((data) => {
       const workspaces = data.workspaces;
 
       statsMessage += `\nTotal Workspaces: ${workspaces.length}\n`;
 
-      // Počet záložek v každém pracovním sezení
       workspaces.forEach((ws, index) => {
         statsMessage += `Workspace "${ws.name}": ${ws.tabs.length} tabs\n`;
       });
 
-      // Nejčastější domény ve všech pracovních sezeních
       const workspaceDomainCount = {};
       workspaces.forEach((ws) => {
         ws.tabs.forEach((tab) => {
@@ -282,14 +264,12 @@ tabStatsBtn.addEventListener("click", () => {
         statsMessage += `- ${domain}: ${count} tabs\n`;
       });
 
-      // Zobrazit výsledky v modálním okně
       statsContent.textContent = statsMessage;
       statsModal.style.display = "flex";
     });
   });
 });
 
-// Zavřít modální okno statistik
 closeStatsModalBtn.addEventListener("click", () => {
   statsModal.style.display = "none";
 });
@@ -297,23 +277,19 @@ closeStatsModalBtn.addEventListener("click", () => {
 exportTabsBtn.addEventListener("click", () => {
   const exportData = {};
 
-  // Načtení aktuálních záložek
   browser.tabs.query({}).then((tabs) => {
     exportData.currentTabs = tabs.map((tab) => ({
       title: tab.title,
       url: tab.url,
     }));
 
-    // Načtení uložených pracovních sezení
     browser.storage.local.get({ workspaces: [] }).then((data) => {
       exportData.workspaces = data.workspaces;
 
-      // Vytvoření souboru JSON
       const json = JSON.stringify(exportData, null, 2);
       const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
 
-      // Vytvoření odkazu ke stažení
       const a = document.createElement("a");
       a.href = url;
       a.download = "tabs_export.json";
@@ -327,6 +303,5 @@ exportTabsBtn.addEventListener("click", () => {
   });
 });
 
-// Inicializace
 loadTabs();
 renderWorkspaces();

@@ -1,46 +1,48 @@
-// ui/renderTabs.js
-
 export function renderTabs(groupedTabs, { onCloseTab, onAddBlocked }) {
   const list = document.getElementById("tab-list");
   list.innerHTML = "";
 
   Object.entries(groupedTabs).forEach(([domain, tabs]) => {
-    const section = document.createElement("li");
-    section.className = "domain-section";
+    const card = document.createElement("li");
+    card.className = "domain-card";
 
-    const header = document.createElement("h3");
-    header.textContent = `${domain} (${tabs.length})`;
-    section.appendChild(header);
+    const header = document.createElement("div");
+    header.className = "domain-header";
+
+    const title = document.createElement("span");
+    title.className = "domain-title";
+    title.textContent = `${domain} (${tabs.length})`;
+
+    const blockBtn = document.createElement("button");
+    blockBtn.className = "block-btn";
+    blockBtn.textContent = "Block domain";
+    blockBtn.addEventListener("click", () => onAddBlocked(domain));
+
+    header.appendChild(title);
+    header.appendChild(blockBtn);
 
     const ul = document.createElement("ul");
+    ul.className = "tabs-list";
 
     tabs.forEach(tab => {
-      const li = document.createElement("li");
-      li.className = "tab-item";
+      const row = document.createElement("li");
+      row.className = "tab-row";
 
-      const title = document.createElement("span");
-      title.textContent = tab.title || tab.url;
+      const tabTitle = document.createElement("span");
+      tabTitle.textContent = tab.title || tab.url;
 
       const closeBtn = document.createElement("button");
-      closeBtn.textContent = "✕";
       closeBtn.className = "close-btn";
-      closeBtn.addEventListener("click", () => {
-        onCloseTab(tab.id);
-      });
+      closeBtn.textContent = "✕";
+      closeBtn.addEventListener("click", () => onCloseTab(tab.id));
 
-      const blockBtn = document.createElement("button");
-      blockBtn.textContent = "Add to Blocked";
-      blockBtn.addEventListener("click", () => {
-        onAddBlocked(domain);
-      });
-
-      li.appendChild(title);
-      li.appendChild(closeBtn);
-      li.appendChild(blockBtn);
-      ul.appendChild(li);
+      row.appendChild(tabTitle);
+      row.appendChild(closeBtn);
+      ul.appendChild(row);
     });
 
-    section.appendChild(ul);
-    list.appendChild(section);
+    card.appendChild(header);
+    card.appendChild(ul);
+    list.appendChild(card);
   });
 }

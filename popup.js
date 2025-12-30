@@ -193,12 +193,22 @@ modalCancel.addEventListener("click", () => {
   closeModal("modal");
 });
 
+workspaceNameInput.addEventListener("input", () => {
+  document.getElementById("workspace-error").textContent = "";
+});
+
+
 modalSave.addEventListener("click", async () => {
   const name = workspaceNameInput.value.trim();
+  const errorEl = document.getElementById("workspace-error");
+
   if (!name) {
-    alert("Workspace name cannot be empty!");
+    errorEl.textContent = "Workspace name cannot be empty";
     return;
   }
+
+  errorEl.textContent = "";
+
 
   await workspaceService.saveWorkspace(name);
   closeModal("modal");

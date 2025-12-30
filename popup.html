@@ -1,34 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Tab Manager Pro</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
   <header>
     <h1>Tab Manager Pro</h1>
     <input type="text" id="search" placeholder="Search tabs..." />
   </header>
 
-  <main>
-    <h2>Grouped Tabs</h2>
-    <ul id="tab-list"></ul>
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-tab="tabs">Tabs</button>
+    <button class="tab-btn" data-tab="workspaces">Workspaces</button>
+    <button class="tab-btn" data-tab="blocked">Blocked</button>
+  </div>
 
-    <h2>Saved Workspaces</h2>
-    <button id="save-workspace">Save Current Workspace</button>
-    <ul id="workspace-list"></ul>
+  <main>
+    <div class="tab-content active" id="tabs">
+      <h2>Grouped Tabs</h2>
+      <ul id="tab-list"></ul>
+    </div>
+
+    <div class="tab-content" id="workspaces">
+      <h2>Saved Workspaces</h2>
+      <button id="save-workspace">Save Current Workspace</button>
+      <ul id="workspace-list"></ul>
+    </div>
+
+    <div class="tab-content" id="blocked">
+      <h2>Blocked Domains</h2>
+
+      <input
+        type="text"
+        id="blocked-input"
+        placeholder="example.com"
+        class="input-field"
+      />
+      <button id="add-blocked">Add</button>
+
+      <ul id="blocked-list"></ul>
+    </div>
   </main>
 
   <footer>
     <button id="tab-stats" class="btn btn-primary">Tab Statistics</button>
     <button id="export-tabs" class="btn btn-secondary">Export Tabs</button>
   </footer>
-  
 
   <div id="modal" class="modal">
     <div class="modal-content">
       <h3>Enter Workspace Name</h3>
-      <input type="text" id="workspace-name" placeholder="Workspace Name" class="input-field" />
+      <input
+        type="text"
+        id="workspace-name"
+        placeholder="Workspace Name"
+        class="input-field"
+      />
       <div class="modal-buttons">
         <button id="modal-save" class="btn btn-primary">Save</button>
         <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
@@ -40,7 +70,14 @@
     <div class="modal-content">
       <h3 id="workspace-title">Edit Workspace</h3>
       <ul id="workspace-details"></ul>
-      <input type="text" id="new-tab-url" placeholder="Enter URL to add" class="input-field" />
+
+      <input
+        type="text"
+        id="new-tab-url"
+        placeholder="Enter URL to add"
+        class="input-field"
+      />
+
       <div class="modal-buttons">
         <button id="add-tab-btn" class="btn btn-primary">Add Tab</button>
         <button id="close-workspace-modal" class="btn btn-secondary">Close</button>
@@ -57,7 +94,6 @@
       </div>
     </div>
   </div>
-  
 
   <script type="module" src="popup.js"></script>
 </body>

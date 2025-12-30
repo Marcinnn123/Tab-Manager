@@ -1,4 +1,6 @@
-export function renderTabs(groupedTabs, onCloseTab) {
+// ui/renderTabs.js
+
+export function renderTabs(groupedTabs, { onCloseTab, onAddBlocked }) {
   const list = document.getElementById("tab-list");
   list.innerHTML = "";
 
@@ -26,8 +28,15 @@ export function renderTabs(groupedTabs, onCloseTab) {
         onCloseTab(tab.id);
       });
 
+      const blockBtn = document.createElement("button");
+      blockBtn.textContent = "Add to Blocked";
+      blockBtn.addEventListener("click", () => {
+        onAddBlocked(domain);
+      });
+
       li.appendChild(title);
       li.appendChild(closeBtn);
+      li.appendChild(blockBtn);
       ul.appendChild(li);
     });
 

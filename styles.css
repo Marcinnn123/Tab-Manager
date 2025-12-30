@@ -290,3 +290,32 @@ footer .btn-secondary:hover {
   background-color: #059669;
   transform: scale(1.05);
 }
+
+.tabs-nav {
+  display: flex;
+  gap: 5px;
+  padding: 8px;
+  background: #e5e7eb;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  background: #d1d5db;
+  font-weight: 500;
+}
+
+.tab-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}

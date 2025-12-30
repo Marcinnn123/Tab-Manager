@@ -7,6 +7,11 @@ import { openModal, closeModal } from "./ui/modals.js";
 import { renderStats } from "./ui/stats.js";
 
 // ===============================
+// CONSTANTS
+// ===============================
+const BLOCKED_KEY = "blockedDomains";
+
+// ===============================
 // DOM
 // ===============================
 const searchInput = document.getElementById("search");
@@ -28,11 +33,27 @@ const closeStatsModalBtn = document.getElementById("close-stats-modal");
 
 const exportTabsBtn = document.getElementById("export-tabs");
 
+// BLOCKED UI
+const blockedInput = document.getElementById("blocked-input");
+const addBlockedBtn = document.getElementById("add-blocked");
+const blockedList = document.getElementById("blocked-list");
+
 // ===============================
 // STATE
 // ===============================
 let allTabs = [];
 let editingWorkspace = null;
+
+// ===============================
+// STORAGE HELPERS
+// ===============================
+async function getBlockedDomains() {
+  return (await browser.storage.local.get(BLOCKED_KEY))[BLOCKED_KEY] || [];
+}
+
+async function saveBlockedDomains(domains) {
+  await browser.storage.local.set({ [BLOCKED_KEY]: domains });
+}
 
 // ===============================
 // HELPERS
@@ -67,9 +88,19 @@ async function loadTabs(filterText = "") {
 
   const grouped = groupTabsByDomain(filteredTabs);
 
-  renderTabs(grouped, async (tabId) => {
-    await tabsService.closeTab(tabId);
-    loadTabs(searchInput.value);
+  renderTabs(grouped, {
+    onCloseTab: async (tabId) => {
+      await tabsService.closeTab(tabId);
+      loadTabs(searchInput.value);
+    },
+    onAddBlocked: async (domain) => {
+      const domains = await getBlockedDomains();
+      if (domains.includes(domain)) return;
+
+      domains.push(domain);
+      await saveBlockedDomains(domains);
+      renderBlockedDomains();
+    }
   });
 }
 
@@ -78,7 +109,7 @@ searchInput.addEventListener("input", () => {
 });
 
 // ===============================
-// WORKSPACES LIST
+// WORKSPACES
 // ===============================
 async function loadWorkspaces() {
   const workspaces = await workspaceService.getWorkspaces();
@@ -213,7 +244,75 @@ exportTabsBtn.addEventListener("click", async () => {
 });
 
 // ===============================
+// BLOCKED DOMAINS UI
+// ===============================
+async function renderBlockedDomains() {
+  blockedList.innerHTML = "";
+  const domains = await getBlockedDomains();
+
+  domains.forEach((domain, index) => {
+    const li = document.createElement("li");
+    li.className = "tab-item";
+    li.textContent = domain;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "✕";
+    removeBtn.className = "close-btn";
+    removeBtn.onclick = async () => {
+      domains.splice(index, 1);
+      await saveBlockedDomains(domains);
+      renderBlockedDomains();
+    };
+
+    li.appendChild(removeBtn);
+    blockedList.appendChild(li);
+  });
+}
+
+addBlockedBtn.addEventListener("click", async () => {
+  let domain = blockedInput.value.trim();
+
+  try {
+    if (!domain.startsWith("http")) {
+      domain = "https://" + domain;
+    }
+    domain = new URL(domain).hostname;
+  } catch {
+    return;
+  }
+
+  if (!domain) return;
+
+  const domains = await getBlockedDomains();
+  if (domains.includes(domain)) return;
+
+  domains.push(domain);
+  await saveBlockedDomains(domains);
+  blockedInput.value = "";
+  renderBlockedDomains();
+});
+
+// ===============================
+// TAB NAVIGATION
+// ===============================
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.tab;
+
+    tabButtons.forEach(b => b.classList.remove("active"));
+    tabContents.forEach(c => c.classList.remove("active"));
+
+    btn.classList.add("active");
+    document.getElementById(target).classList.add("active");
+  });
+});
+
+// ===============================
 // INIT
 // ===============================
 loadTabs();
 loadWorkspaces();
+renderBlockedDomains();

@@ -96,6 +96,32 @@
     </div>
   </div>
 
+  <div class="modal" id="block-modal">
+    <div class="modal-content">
+      <h3 id="block-modal-title">Block domain</h3>
+    
+      <div class="block-options">
+        <button data-minutes="15">15 min</button>
+        <button data-minutes="30">30 min</button>
+        <button data-minutes="60">1 hour</button>
+        <button data-minutes="120">2 hours</button>
+        <button data-forever="true">Forever</button>
+      </div>
+    
+      <input
+        type="number"
+        id="custom-minutes"
+        placeholder="Custom minutes"
+        min="1"
+      />
+    
+      <div class="modal-buttons">
+        <button id="block-confirm">Block</button>
+        <button id="block-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="popup.js"></script>
 </body>
 </html>

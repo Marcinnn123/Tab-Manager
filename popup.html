@@ -47,9 +47,6 @@
 
   <footer>
     <button id="tab-stats" class="btn btn-primary">Tab Statistics</button>
-    <button id="export-tabs" class="btn btn-secondary">Export</button>
-    <button id="import-tabs" class="btn btn-secondary">Import</button>
-    <input type="file" id="import-file" accept=".json" style="display:none" />
   </footer>
 
   <div id="modal" class="modal">
@@ -91,7 +88,7 @@
   <div id="stats-modal" class="modal">
     <div class="modal-content">
       <h3>Tab Statistics</h3>
-      <pre id="stats-content"></pre>
+      <div id="stats-content"></div>
       <div class="modal-buttons">
         <button id="close-stats-modal" class="btn btn-secondary">Close</button>
       </div>
@@ -118,8 +115,8 @@
       />
     
       <div class="modal-buttons">
-        <button id="block-confirm">Block</button>
-        <button id="block-cancel">Cancel</button>
+        <button id="block-confirm" class="btn btn-primary">Block</button>
+        <button id="block-cancel" class="btn btn-secondary">Cancel</button>
       </div>
     </div>
   </div>

@@ -396,12 +396,8 @@ footer button {
 #tab-stats {
   background: #3b82f6;
   color: white;
-}
-
-#export-tabs,
-#import-tabs {
-  background: #10b981;
-  color: white;
+  flex: unset;
+  width: 100%;
 }
 
 /* ================= MODALS ================= */
@@ -445,21 +441,24 @@ footer button {
   cursor: pointer;
 }
 
-/* Save */
-#modal-save {
+/* Save / Block confirm */
+#modal-save,
+#block-confirm {
   background: #3b82f6;
   color: white;
 }
 
 /* Cancel */
 #modal-cancel,
-#confirm-cancel {
+#confirm-cancel,
+#block-cancel {
   background: #e5e7eb;
   color: #334155;
 }
 
 #modal-cancel:hover,
-#confirm-cancel:hover {
+#confirm-cancel:hover,
+#block-cancel:hover {
   background: #d1d5db;
 }
 
@@ -475,14 +474,114 @@ footer button {
 
 
 /* ================= STATS ================= */
+#stats-modal .modal-content {
+  width: 320px;
+}
+
 #stats-content {
-  font-family: monospace;
-  font-size: 12px;
-  background: #f8fafc;
-  padding: 10px;
-  border-radius: 10px;
-  max-height: 260px;
+  max-height: 280px;
   overflow-y: auto;
+}
+
+.stats-cards {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stats-card {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stats-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.stats-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.stats-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.stats-domain-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stats-domain-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+
+.stats-domain-list li span:first-child {
+  width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: #374151;
+  font-weight: 500;
+}
+
+.stats-bar-wrap {
+  flex: 1;
+  background: #e2e8f0;
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.stats-bar-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 999px;
+  min-width: 4px;
+}
+
+.stats-bar-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  width: 20px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ================= WORKSPACE TAB COUNT ================= */
+.ws-tab-count {
+  font-size: 11px;
+  background: #e5e7eb;
+  color: #475569;
+  border-radius: 10px;
+  padding: 2px 7px;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 /* ===============================
@@ -543,6 +642,28 @@ footer button {
     border-color: #3b82f6;
   }
 
+  .stats-card {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .stats-value {
+    color: #f1f5f9;
+  }
+
+  .stats-domain-list li span:first-child {
+    color: #cbd5e1;
+  }
+
+  .stats-bar-wrap {
+    background: #334155;
+  }
+
+  .ws-tab-count {
+    background: #334155;
+    color: #94a3b8;
+  }
+
   #workspace-details li {
     background: #0f172a;
     border-color: #334155;
@@ -584,7 +705,8 @@ footer button {
   }
 
   #modal-cancel,
-  #confirm-cancel {
+  #confirm-cancel,
+  #block-cancel {
     background: #334155;
     color: #cbd5e1;
   }

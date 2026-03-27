@@ -36,9 +36,6 @@ const closeWorkspaceModal = document.getElementById("close-workspace-modal");
 
 const tabStatsBtn = document.getElementById("tab-stats");
 const closeStatsModalBtn = document.getElementById("close-stats-modal");
-const exportTabsBtn = document.getElementById("export-tabs");
-const importTabsBtn = document.getElementById("import-tabs");
-const importFileInput = document.getElementById("import-file");
 
 const blockedInput = document.getElementById("blocked-input");
 const addBlockedBtn = document.getElementById("add-blocked");
@@ -322,8 +319,12 @@ saveWorkspaceBtn.addEventListener("click", () => {
 async function loadWorkspaces() {
   const ws = await workspaceService.getWorkspaces();
   renderWorkspaces(ws, {
-    onOpen: async (id) => {
+    onOpen: async (id, btn) => {
       await workspaceService.openWorkspace(id);
+      const orig = btn.textContent;
+      btn.textContent = "Opened!";
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1500);
     },
     onEdit: async (id) => {
       await openWorkspaceEditor(id);
@@ -397,7 +398,8 @@ addTabBtn.addEventListener("click", async () => {
   if (!ws) return;
 
   const updated = { ...ws, tabs: [...(ws.tabs || [])] };
-  updated.tabs.push({ url });
+  const hostname = new URL(url).hostname;
+  updated.tabs.push({ url, title: hostname, favIconUrl: "" });
 
   await workspaceService.updateWorkspace(editingWorkspace.id, updated);
   newTabUrlInput.value = "";
@@ -451,7 +453,7 @@ tabButtons.forEach(btn => {
 
 
 /* ==============================
-   STATS, EXPORT & IMPORT
+   STATS
 ============================== */
 tabStatsBtn.addEventListener("click", async () => {
   renderStats(await tabsService.getAllTabs());
@@ -461,59 +463,6 @@ tabStatsBtn.addEventListener("click", async () => {
 closeStatsModalBtn.addEventListener("click", () =>
   closeModal("stats-modal")
 );
-
-exportTabsBtn.addEventListener("click", async () => {
-  const data = {
-    currentTabs: await tabsService.getAllTabs(),
-    workspaces: await workspaceService.getWorkspaces()
-  };
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "tabs_export.json";
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-importTabsBtn.addEventListener("click", () => {
-  importFileInput.value = "";
-  importFileInput.click();
-});
-
-importFileInput.addEventListener("change", async () => {
-  const file = importFileInput.files[0];
-  if (!file) return;
-
-  const text = await file.text();
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    return;
-  }
-
-  if (Array.isArray(data.workspaces) && data.workspaces.length > 0) {
-    const existing = await workspaceService.getWorkspaces();
-    const existingNames = new Set(existing.map(w => w.name));
-    for (const ws of data.workspaces) {
-      if (!existingNames.has(ws.name)) {
-        existing.push(ws);
-      }
-    }
-    await browser.storage.local.set({ workspaces: existing });
-    loadWorkspaces();
-  }
-
-  if (Array.isArray(data.currentTabs) && data.currentTabs.length > 0) {
-    const urls = data.currentTabs.map(t => t.url).filter(Boolean);
-    await tabsService.openTabs(urls);
-  }
-});
 
 /* ==============================
    INIT

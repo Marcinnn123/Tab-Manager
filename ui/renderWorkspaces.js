@@ -25,9 +25,13 @@ export function renderWorkspaces(workspaces, { onOpen, onDelete, onEdit, onReord
     const name = document.createElement("span");
     name.textContent = ws.name;
 
+    const count = document.createElement("span");
+    count.className = "ws-tab-count";
+    count.textContent = (ws.tabs || []).length;
+
     const openBtn = document.createElement("button");
     openBtn.textContent = "Open";
-    openBtn.addEventListener("click", () => onOpen(ws.id));
+    openBtn.addEventListener("click", () => onOpen(ws.id, openBtn));
 
     const editBtn = document.createElement("button");
     editBtn.textContent = "Edit";
@@ -73,6 +77,7 @@ export function renderWorkspaces(workspaces, { onOpen, onDelete, onEdit, onReord
 
     li.appendChild(handle);
     li.appendChild(name);
+    li.appendChild(count);
     li.appendChild(openBtn);
     li.appendChild(editBtn);
     li.appendChild(deleteBtn);

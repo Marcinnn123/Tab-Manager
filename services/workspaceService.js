@@ -1,5 +1,3 @@
-const api = browser;
-
 import { getAllTabs, openTabs } from "./tabsService.js";
 import * as storage from "./storageService.js";
 
@@ -16,7 +14,7 @@ export async function saveWorkspace(name) {
   workspaces.push({
     id: Date.now(),
     name,
-    tabs: tabs.map(t => t.url),
+    tabs: tabs.map(t => ({ url: t.url, title: t.title || t.url, favIconUrl: t.favIconUrl || "" })),
     createdAt: new Date().toISOString()
   });
 
@@ -36,12 +34,16 @@ export async function openWorkspace(id) {
   const ws = workspaces.find(w => w.id === id);
   if (!ws) return;
 
-  await openTabs(ws.tabs);
+  await openTabs(ws.tabs.map(t => (typeof t === "string" ? t : t.url)));
 }
 
 export async function getWorkspaceById(id) {
   const workspaces = await getWorkspaces();
   return workspaces.find(w => w.id === id);
+}
+
+export async function reorderWorkspaces(reordered) {
+  await storage.set(STORAGE_KEY, reordered);
 }
 
 export async function updateWorkspace(id, updatedWorkspace) {

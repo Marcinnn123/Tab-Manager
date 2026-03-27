@@ -1,19 +1,17 @@
-const api = browser;
-
 export function getAllTabs() {
-  return api.tabs.query({});
+  return browser.tabs.query({});
 }
 
 export function closeTab(tabId) {
-  return api.tabs.remove(tabId);
+  return browser.tabs.remove(tabId);
 }
 
 export function openTab(url) {
-  return api.tabs.create({ url });
+  return browser.tabs.create({ url });
 }
 
 export function openTabs(urls) {
   return Promise.all(
-    urls.map(url => api.tabs.create({ url }))
+    urls.map(url => browser.tabs.create({ url }))
   );
 }

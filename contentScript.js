@@ -3,14 +3,15 @@ const BLOCKED_KEY = "blockedDomains";
 const domain = location.hostname;
 
 let overlay = null;
+let countdownInterval = null;
 
 /* ==============================
    HELPERS
 ============================== */
-function isBlocked(blockedDomains) {
+function getBlockEntry(blockedDomains) {
   const now = Date.now();
 
-  return blockedDomains.some(item => {
+  return blockedDomains.find(item => {
     if (!item || !item.domain) return false;
 
     const matchesDomain =
@@ -20,10 +21,27 @@ function isBlocked(blockedDomains) {
       item.blockedUntil === null || item.blockedUntil > now;
 
     return matchesDomain && stillActive;
-  });
+  }) || null;
 }
 
-function createOverlay() {
+function formatRemaining(ms) {
+  if (ms <= 0) return "0 min";
+
+  const totalSeconds = Math.ceil(ms / 1000);
+  if (totalSeconds < 60) return `${totalSeconds} s`;
+
+  const minutes = Math.ceil(ms / 60000);
+  if (minutes < 60) return `${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours} h ${rest} min` : `${hours} h`;
+}
+
+/* ==============================
+   OVERLAY
+============================== */
+function createOverlay(blockedUntil) {
   if (overlay) return;
 
   overlay = document.createElement("div");
@@ -50,23 +68,50 @@ function createOverlay() {
       max-width:320px;
     ">
       <h2 style="margin-bottom:8px;font-size:18px;">Site blocked</h2>
-      <p style="opacity:.8;margin-bottom:6px;">${domain}</p>
+      <p id="tmb-domain" style="opacity:.8;margin-bottom:6px;"></p>
       <small style="opacity:.6;">
-        This site is currently blocked
+        ${blockedUntil === null
+          ? "Blocked forever"
+          : `Unblocks in <span id="tmb-countdown">${formatRemaining(blockedUntil - Date.now())}</span>`
+        }
       </small>
     </div>
   `;
 
+  overlay.querySelector("#tmb-domain").textContent = domain;
+
   document.documentElement.appendChild(overlay);
   document.body.style.overflow = "hidden";
+
+  if (blockedUntil !== null) {
+    startCountdown(blockedUntil);
+  }
 }
 
 function removeOverlay() {
   if (!overlay) return;
 
+  clearInterval(countdownInterval);
+  countdownInterval = null;
   overlay.remove();
   overlay = null;
   document.body.style.overflow = "";
+}
+
+function startCountdown(blockedUntil) {
+  clearInterval(countdownInterval);
+
+  countdownInterval = setInterval(() => {
+    const remaining = blockedUntil - Date.now();
+
+    if (remaining <= 0) {
+      removeOverlay();
+      return;
+    }
+
+    const el = document.getElementById("tmb-countdown");
+    if (el) el.textContent = formatRemaining(remaining);
+  }, 1000);
 }
 
 /* ==============================
@@ -74,9 +119,8 @@ function removeOverlay() {
 ============================== */
 browser.storage.local.get(BLOCKED_KEY).then(data => {
   const blocked = data[BLOCKED_KEY] || [];
-  if (isBlocked(blocked)) {
-    createOverlay();
-  }
+  const entry = getBlockEntry(blocked);
+  if (entry) createOverlay(entry.blockedUntil);
 });
 
 /* ==============================
@@ -86,25 +130,12 @@ browser.storage.onChanged.addListener((changes, area) => {
   if (area !== "local" || !changes[BLOCKED_KEY]) return;
 
   const blocked = changes[BLOCKED_KEY].newValue || [];
+  const entry = getBlockEntry(blocked);
 
-  if (isBlocked(blocked)) {
-    createOverlay();
+  if (entry) {
+    removeOverlay();
+    createOverlay(entry.blockedUntil);
   } else {
     removeOverlay();
   }
 });
-
-/* ==============================
-   AUTO UNBLOCK TIMER
-   (in case block expires without storage change)
-============================== */
-setInterval(async () => {
-  const data = await browser.storage.local.get(BLOCKED_KEY);
-  const blocked = data[BLOCKED_KEY] || [];
-
-  if (isBlocked(blocked)) {
-    createOverlay();
-  } else {
-    removeOverlay();
-  }
-}, 30 * 1000); // check every 30s

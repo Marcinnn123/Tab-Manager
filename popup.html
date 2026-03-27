@@ -47,7 +47,9 @@
 
   <footer>
     <button id="tab-stats" class="btn btn-primary">Tab Statistics</button>
-    <button id="export-tabs" class="btn btn-secondary">Export Tabs</button>
+    <button id="export-tabs" class="btn btn-secondary">Export</button>
+    <button id="import-tabs" class="btn btn-secondary">Import</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" />
   </footer>
 
   <div id="modal" class="modal">
@@ -118,6 +120,16 @@
       <div class="modal-buttons">
         <button id="block-confirm">Block</button>
         <button id="block-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="modal">
+    <div class="modal-content">
+      <p id="confirm-message" style="margin-bottom:16px;font-size:14px;"></p>
+      <div class="modal-buttons">
+        <button id="confirm-ok" class="btn btn-danger">Delete</button>
+        <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
       </div>
     </div>
   </div>

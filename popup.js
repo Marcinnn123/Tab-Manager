@@ -37,6 +37,8 @@ const closeWorkspaceModal = document.getElementById("close-workspace-modal");
 const tabStatsBtn = document.getElementById("tab-stats");
 const closeStatsModalBtn = document.getElementById("close-stats-modal");
 const exportTabsBtn = document.getElementById("export-tabs");
+const importTabsBtn = document.getElementById("import-tabs");
+const importFileInput = document.getElementById("import-file");
 
 const blockedInput = document.getElementById("blocked-input");
 const addBlockedBtn = document.getElementById("add-blocked");
@@ -46,6 +48,32 @@ const blockModalTitle = document.getElementById("block-modal-title");
 const blockConfirmBtn = document.getElementById("block-confirm");
 const blockCancelBtn = document.getElementById("block-cancel");
 const customMinutesInput = document.getElementById("custom-minutes");
+
+/* ==============================
+   CONFIRM MODAL
+============================== */
+function showConfirm(message) {
+  return new Promise(resolve => {
+    document.getElementById("confirm-message").textContent = message;
+    openModal("confirm-modal");
+
+    const okBtn = document.getElementById("confirm-ok");
+    const cancelBtn = document.getElementById("confirm-cancel");
+
+    function cleanup(result) {
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      closeModal("confirm-modal");
+      resolve(result);
+    }
+
+    function onOk() { cleanup(true); }
+    function onCancel() { cleanup(false); }
+
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+  });
+}
 
 /* ==============================
    STORAGE HELPERS
@@ -100,7 +128,10 @@ async function loadTabs(filterText = "") {
     );
   });
 
-  renderTabs(groupTabsByDomain(filtered), {
+  const blockedDomains = await getBlockedDomains();
+  const blockedSet = new Set(blockedDomains.map(b => b.domain));
+
+  renderTabs(groupTabsByDomain(filtered), blockedSet, {
     onCloseTab: async (id) => {
       await tabsService.closeTab(id);
       loadTabs(searchInput.value);
@@ -113,7 +144,9 @@ async function loadTabs(filterText = "") {
         .querySelectorAll(".block-options button")
         .forEach(b => b.classList.remove("active"));
 
-      blockModalTitle.textContent = `Block ${domain}`;
+      blockModalTitle.textContent = blockedSet.has(domain)
+        ? `Extend block: ${domain}`
+        : `Block ${domain}`;
       openModal("block-modal");
     }
   });
@@ -155,11 +188,15 @@ blockConfirmBtn.addEventListener("click", async () => {
   }
 
   const blocked = await getBlockedDomains();
-  if (!blocked.some(b => b.domain === domainToBlock)) {
+  const existingIndex = blocked.findIndex(b => b.domain === domainToBlock);
+  if (existingIndex >= 0) {
+    blocked[existingIndex].blockedUntil = blockedUntil;
+  } else {
     blocked.push({ domain: domainToBlock, blockedUntil });
-    await saveBlockedDomains(blocked);
   }
+  await saveBlockedDomains(blocked);
 
+  blockedInput.value = "";
   closeModal("block-modal");
   renderBlockedDomains();
 });
@@ -183,6 +220,14 @@ async function renderBlockedDomains() {
 
   await saveBlockedDomains(blocked);
 
+  if (blocked.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "No blocked domains.";
+    blockedList.appendChild(empty);
+    return;
+  }
+
   blocked.forEach((item, index) => {
     const li = document.createElement("li");
 
@@ -190,8 +235,11 @@ async function renderBlockedDomains() {
     left.textContent = item.domain;
 
     const right = document.createElement("div");
+    right.className = "blocked-right";
 
     const time = document.createElement("small");
+    time.className = "blocked-time";
+    time.dataset.until = item.blockedUntil;
     time.textContent =
       item.blockedUntil === null
         ? "forever"
@@ -215,6 +263,28 @@ async function renderBlockedDomains() {
   });
 }
 
+function updateBlockedTimesOnly() {
+  const now = Date.now();
+
+  document.querySelectorAll(".blocked-time").forEach(el => {
+    const until = el.dataset.until;
+
+    if (until === "null") {
+      el.textContent = "forever";
+      return;
+    }
+
+    const remaining = Number(until) - now;
+
+    if (remaining <= 0) {
+      renderBlockedDomains();
+    } else {
+      el.textContent = formatRemaining(remaining);
+    }
+  });
+}
+
+
 addBlockedBtn.addEventListener("click", async () => {
   let domain = blockedInput.value.trim();
   if (!domain) return;
@@ -229,11 +299,15 @@ addBlockedBtn.addEventListener("click", async () => {
   const blocked = await getBlockedDomains();
   if (blocked.some(b => b.domain === domain)) return;
 
-  blocked.push({ domain, blockedUntil: null });
-  await saveBlockedDomains(blocked);
+  domainToBlock = domain;
+  selectedMinutes = null;
+  customMinutesInput.value = "";
+  document
+    .querySelectorAll(".block-options button")
+    .forEach(b => b.classList.remove("active"));
 
-  blockedInput.value = "";
-  renderBlockedDomains();
+  blockModalTitle.textContent = `Block ${domain}`;
+  openModal("block-modal");
 });
 
 /* ==============================
@@ -254,8 +328,14 @@ async function loadWorkspaces() {
     onEdit: async (id) => {
       await openWorkspaceEditor(id);
     },
-    onDelete: async (id) => {
+    onDelete: async (id, name) => {
+      const ok = await showConfirm(`Delete workspace "${name}"?`);
+      if (!ok) return;
       await workspaceService.deleteWorkspace(id);
+      loadWorkspaces();
+    },
+    onReorder: async (reordered) => {
+      await workspaceService.reorderWorkspaces(reordered);
       loadWorkspaces();
     }
   });
@@ -272,8 +352,15 @@ async function openWorkspaceEditor(id) {
   (ws.tabs || []).forEach((tab, i) => {
     const li = document.createElement("li");
 
+    const favicon = document.createElement("img");
+    favicon.width = 14;
+    favicon.height = 14;
+    favicon.style.flexShrink = "0";
+    favicon.src = (typeof tab === "object" ? tab.favIconUrl : "") || "";
+    favicon.onerror = () => { favicon.style.display = "none"; };
+
     const span = document.createElement("span");
-    span.textContent = tab.url || tab;
+    span.textContent = (typeof tab === "object" ? (tab.title || tab.url) : tab);
 
     const btn = document.createElement("button");
     btn.textContent = "✕";
@@ -284,6 +371,7 @@ async function openWorkspaceEditor(id) {
       openWorkspaceEditor(id);
     });
 
+    li.appendChild(favicon);
     li.appendChild(span);
     li.appendChild(btn);
     workspaceDetails.appendChild(li);
@@ -363,7 +451,7 @@ tabButtons.forEach(btn => {
 
 
 /* ==============================
-   STATS & EXPORT
+   STATS, EXPORT & IMPORT
 ============================== */
 tabStatsBtn.addEventListener("click", async () => {
   renderStats(await tabsService.getAllTabs());
@@ -392,9 +480,47 @@ exportTabsBtn.addEventListener("click", async () => {
   URL.revokeObjectURL(url);
 });
 
+importTabsBtn.addEventListener("click", () => {
+  importFileInput.value = "";
+  importFileInput.click();
+});
+
+importFileInput.addEventListener("change", async () => {
+  const file = importFileInput.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return;
+  }
+
+  if (Array.isArray(data.workspaces) && data.workspaces.length > 0) {
+    const existing = await workspaceService.getWorkspaces();
+    const existingNames = new Set(existing.map(w => w.name));
+    for (const ws of data.workspaces) {
+      if (!existingNames.has(ws.name)) {
+        existing.push(ws);
+      }
+    }
+    await browser.storage.local.set({ workspaces: existing });
+    loadWorkspaces();
+  }
+
+  if (Array.isArray(data.currentTabs) && data.currentTabs.length > 0) {
+    const urls = data.currentTabs.map(t => t.url).filter(Boolean);
+    await tabsService.openTabs(urls);
+  }
+});
+
 /* ==============================
    INIT
 ============================== */
 loadTabs();
 loadWorkspaces();
 renderBlockedDomains();
+setInterval(() => {
+  updateBlockedTimesOnly();
+}, 1000);

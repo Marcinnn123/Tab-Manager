@@ -6,16 +6,34 @@
     "permissions": [
       "tabs",
       "storage",
-      "bookmarks"
+      "bookmarks",
+      "notifications"
     ],
+    "commands": {
+      "_execute_browser_action": {
+        "suggested_key": {
+          "default": "Alt+Shift+T"
+        },
+        "description": "Open Tab Manager Pro"
+      }
+    },
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
         "js": ["contentScript.js"]
       }
     ],
+    "icons": {
+      "48": "icon48.png",
+      "96": "icon96.png",
+      "128": "icon128.png"
+    },
     "browser_action": {
-      "default_popup": "popup.html"
+      "default_popup": "popup.html",
+      "default_icon": {
+        "48": "icon48.png",
+        "96": "icon96.png"
+      }
     },
     "background": {
       "scripts": ["background.js"]

@@ -142,10 +142,18 @@ h2 {
   background: #f1f5f9;
 }
 
+.tab-favicon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
 .tab-row span {
   font-size: 13px;
   color: #374151;
-  max-width: 240px;
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -180,6 +188,39 @@ h2 {
   flex: 1;
   font-size: 13px;
   font-weight: 500;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #94a3b8;
+  font-size: 14px;
+  padding-right: 4px;
+  flex-shrink: 0;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+#workspaces li.dragging {
+  opacity: 0.4;
+}
+
+#workspaces li.drag-over {
+  border: 2px dashed #3b82f6;
+  background: #eff6ff;
+}
+
+#save-workspace {
+  width: 100%;
+  background: #10b981;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 9px;
+  border: none;
+  margin-bottom: 12px;
+  cursor: pointer;
 }
 
 #workspaces button {
@@ -309,6 +350,27 @@ h2 {
   margin-right: 15px;
 }
 
+.blocked-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.blocked-time {
+  font-size: 12px;
+  color: #555;
+  white-space: nowrap;
+}
+
+
+/* ================= EMPTY STATE ================= */
+.empty-state {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 24px 0;
+}
+
 /* ================= FOOTER ================= */
 footer {
   position: sticky;
@@ -331,12 +393,13 @@ footer button {
   cursor: pointer;
 }
 
-footer button:first-child {
+#tab-stats {
   background: #3b82f6;
   color: white;
 }
 
-footer button:last-child {
+#export-tabs,
+#import-tabs {
   background: #10b981;
   color: white;
 }
@@ -389,13 +452,25 @@ footer button:last-child {
 }
 
 /* Cancel */
-#modal-cancel {
+#modal-cancel,
+#confirm-cancel {
   background: #e5e7eb;
   color: #334155;
 }
 
-#modal-cancel:hover {
+#modal-cancel:hover,
+#confirm-cancel:hover {
   background: #d1d5db;
+}
+
+.btn-danger,
+#confirm-ok {
+  background: #ef4444;
+  color: white;
+}
+
+#confirm-ok:hover {
+  background: #dc2626;
 }
 
 
@@ -418,4 +493,108 @@ footer button:last-child {
   font-size: 12px;
   margin-top: 4px;
   min-height: 14px;
+}
+
+/* ================= DARK MODE ================= */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0f172a;
+    color: #f1f5f9;
+  }
+
+  header input {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+
+  .tabs-nav {
+    background: #1e293b;
+  }
+
+  .tab-btn {
+    background: #334155;
+    color: #94a3b8;
+  }
+
+  .tab-btn.active {
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  .domain-card {
+    background: #1e293b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .tab-row:hover {
+    background: #334155;
+  }
+
+  .tab-row span {
+    color: #cbd5e1;
+  }
+
+  #workspaces li {
+    background: #1e293b;
+  }
+
+  #workspaces li.drag-over {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+  }
+
+  #workspace-details li {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  #workspace-details li span {
+    color: #f1f5f9;
+  }
+
+  #blocked ul li {
+    background: #1e293b;
+  }
+
+  #save-workspace {
+    background: #059669;
+  }
+
+  #blocked input,
+  #custom-minutes,
+  .input-field {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
+  }
+
+  .block-options button {
+    background: #334155;
+    color: #f1f5f9;
+  }
+
+  footer {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .modal-content {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+
+  #modal-cancel,
+  #confirm-cancel {
+    background: #334155;
+    color: #cbd5e1;
+  }
+
+  #stats-content {
+    background: #0f172a;
+    color: #cbd5e1;
+  }
+
+  .empty-state {
+    color: #475569;
+  }
 }
